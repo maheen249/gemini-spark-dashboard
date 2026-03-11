@@ -5,6 +5,20 @@ interface ChatMessageProps {
   content: string;
 }
 
+const formatContent = (text: string): string => {
+  return text
+    // Headers: ## text -> bold text on its own line
+    .replace(/^#{1,6}\s+(.+)$/gm, '<strong>$1</strong>')
+    // Bold: **text** or __text__
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/__(.+?)__/g, '<strong>$1</strong>')
+    // Italic: *text* or _text_
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/(?<!\w)_(.+?)_(?!\w)/g, '<em>$1</em>')
+    // Bullet points
+    .replace(/^[-*]\s+/gm, '• ');
+};
+
 const ChatMessage = ({ role, content }: ChatMessageProps) => {
   const isUser = role === "user";
 
@@ -23,9 +37,8 @@ const ChatMessage = ({ role, content }: ChatMessageProps) => {
             ? "bg-[hsl(var(--chat-user))] text-[hsl(var(--chat-user-foreground))] rounded-br-md"
             : "bg-[hsl(var(--chat-ai))] text-[hsl(var(--chat-ai-foreground))] rounded-bl-md"
         }`}
-      >
-        {content}
-      </div>
+        dangerouslySetInnerHTML={{ __html: isUser ? content : formatContent(content) }}
+      />
     </div>
   );
 };
